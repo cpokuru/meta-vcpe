@@ -1,34 +1,19 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: $0 path-to-yocto-image.tar.bz2"
+    echo "Usage: $0 vcpe-image-qemux86.lxd.tar.bz2"
     exit 1
 fi
 
-export MLD="$HOME/git/meta-lxd"
-
-imagename="${1##*/}"; imagename="${imagename%.tar.bz2}"
-containername="poky-vcpe"
+imagefile=$1
+imagename="${imagefile##*/}"; imagename="${imagename%.tar.bz2}"
+containername="vcpe"
 profilename="${containername}"
 volumename="${containername}-nvram"
 
 lxc image delete ${imagename} 2> /dev/null
 
-creation_date=$(date +%s)
-creation_stamp=$(date -r "$MLD/$1" "+%Y%m%d_%H:%M")
-
-cat > $MLD/tmp/metadata.yaml << EOL
-architecture: "i686"
-creation_date: ${creation_date}
-properties:
-    description: "$imagename (${creation_stamp})"
-    os: ""
-    release: ""
-    version: ""
-EOL
-
-tar czf $MLD/tmp/metadata.tar.gz -C $MLD/tmp metadata.yaml
-lxc image import $MLD/tmp/metadata.tar.gz $MLD/$1 --alias ${imagename}
+lxc image import $1 --alias ${imagename}
 
 echo "Configuring ${containername}"
 
