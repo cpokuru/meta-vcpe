@@ -5,9 +5,11 @@ POKY_BBLAYERS_CONF_VERSION = "2"
 BBPATH = "${TOPDIR}"
 BBFILES ?= ""
 
+VCPEROOT := "${@os.path.abspath(os.path.dirname(d.getVar('FILE', True)) + '/../..')}"
+
 BBLAYERS ?= " \
-  /home/rev/yocto/tst-vcpe/vcpe/meta \
-  /home/rev/yocto/tst-vcpe/vcpe/meta-poky \
-  /home/rev/yocto/tst-vcpe/vcpe/meta-yocto-bsp \
-  /home/rev/yocto/tst-vcpe/vcpe/meta-vcpe \
+  ${VCPEROOT}/meta \
+  ${VCPEROOT}/meta-poky \
+  ${VCPEROOT}/meta-yocto-bsp \
+  ${VCPEROOT}/meta-vcpe \
   "
