@@ -1,0 +1,2 @@
+
+TEMPLATECONF="meta-vcpe/conf" source oe-init-build-env build-vcpe
