@@ -11,5 +11,8 @@ BBLAYERS ?= " \
   ${VCPEROOT}/meta \
   ${VCPEROOT}/meta-poky \
   ${VCPEROOT}/meta-yocto-bsp \
+  ${VCPEROOT}/meta-openembedded/meta-oe \
+  ${VCPEROOT}/meta-openembedded/meta-python \
+  ${VCPEROOT}/meta-openembedded/meta-networking \
   ${VCPEROOT}/meta-vcpe \
   "

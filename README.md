@@ -16,6 +16,7 @@ A Yocto reference-distro based container image to run in LXD
 ```
 git clone -b kirkstone git://git.yoctoproject.org/poky vcpe
 cd vcpe
+git clone git://git.openembedded.org/meta-openembedded -b kirkstone
 git clone https://github.com/robvogelaar/meta-vcpe
 source meta-vcpe/setup-environment
 bitbake vcpe-image
@@ -25,6 +26,9 @@ ls -al tmp/deploy/images/qemux86/vcpe-image-qemux86.lxd.tar.bz2
 ### Launch container from container image
 ```
 ./gen/vcpe.sh vcpe-image-qemux86.lxd.tar.bz2
+or via scp
+./gen/vcpe.sh rev@rev140:/home/rev/yocto/poky-vcpe/build-vcpe/tmp/deploy/images/qemux86/vcpe-image-qemux86-20250127233011.rootfs.lxd.tar.bz2
+
 ```
 
 ### Shell into container

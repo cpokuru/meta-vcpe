@@ -7,6 +7,8 @@ require recipes-core/images/core-image-minimal.bb
 IMAGE_INSTALL:append = " \
     packagegroup-core-ssh-openssh \
     bash \
+    \
+    usp-pa \
 "
 
 # Add extra image features if needed
