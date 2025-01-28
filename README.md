@@ -3,6 +3,8 @@ A Yocto reference-distro based container image to run in LXD
 
 ## Description
 * inherit poky distro
+* add meta-openembedded
+* add meta-vcpe
 * do not build kernel
 * remove undesired image types
 * add lxd image class
@@ -34,4 +36,34 @@ or via scp
 ### Shell into container
 ```
 lxc exec vcpe bash
+bash-5.1# 
+```
+
+# End-to-End environment
+
+
+### Add meta-vcpe to system path
+
+### Create the bridges
+```
+bridges.sh
+```
+
+### Create the bng-7 container
+```
+bng.sh 7
+```
+
+### Get erouter0 ip from bng-7 in vcpe
+```
+lxc exec vcpe bash
+bash-5.1# udhcpc -i erouter0
+```
+
+### Run usp agent
+```
+lxc exec vcpe bash
+
+bash-5.1# rm -rf /nvram/usp-pa.db
+bash-5.1# /usr/bin/UspPa -v3 --resetfile /etc/usp-pa/oktopus-websockets-obuspa.txt --truststore /etc/usp-pa/usp_truststore.pem --interface erouter0 --dbfile /nvram/usp-pa.db &
 ```
