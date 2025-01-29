@@ -3,11 +3,15 @@ DESCRIPTION = "Custom image based on core-image-minimal"
 
 require recipes-core/images/core-image-minimal.bb
 
-# Add extra packages you want in your image
 IMAGE_INSTALL:append = " \
-    packagegroup-core-ssh-openssh \
+    init-ifupdown \
+    procps \
     bash \
+    packagegroup-core-ssh-openssh \
+    lsof \
+    strace \
     \
+    rbus \
     usp-pa \
 "
 
