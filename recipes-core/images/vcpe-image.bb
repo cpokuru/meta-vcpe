@@ -8,8 +8,10 @@ IMAGE_INSTALL:append = " \
     procps \
     bash \
     packagegroup-core-ssh-openssh \
+    curl \
     lsof \
     strace \
+    tcpdump \
     \
     rbus \
     usp-pa \

@@ -1,19 +1,19 @@
-From 9484f41dea5511e3abd387f55381952fa5f5687f Mon Sep 17 00:00:00 2001
+From 435e27e684027a62739f6256b85795482e7474a2 Mon Sep 17 00:00:00 2001
 From: Rob Vogelaar <revogelaar@gmail.com>
-Date: Wed, 29 Jan 2025 13:10:12 -0800
+Date: Wed, 29 Jan 2025 15:08:13 -0800
 Subject: [PATCH] add lcm datamodel
 
 Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
 ---
- src/vendor/vendor.c      | 1062 +++++++++++++++++++++++++++++++++++++-
+ src/vendor/vendor.c      | 1107 +++++++++++++++++++++++++++++++++++++-
  src/vendor/vendor_defs.h |   14 +-
- 2 files changed, 1060 insertions(+), 16 deletions(-)
+ 2 files changed, 1105 insertions(+), 16 deletions(-)
 
 diff --git a/src/vendor/vendor.c b/src/vendor/vendor.c
-index b205faf..c37c553 100644
+index b205faf..4c7865f 100644
 --- a/src/vendor/vendor.c
 +++ b/src/vendor/vendor.c
-@@ -39,14 +39,1060 @@
+@@ -39,14 +39,1105 @@
   *
   */
  
@@ -31,6 +31,8 @@ index b205faf..c37c553 100644
 -#include "usp_api.h"
 +
 +#include <rbus.h>
++
++#if 0
 +
 +#if __STDC_VERSION__ >= 201112L
 +#define STATIC_ASSERT(_cond,_str) _Static_assert(_cond,_str)
@@ -1001,7 +1003,10 @@ index b205faf..c37c553 100644
 +    return is_running;
 +}
 +
++#if 0
 +static pthread_t init_thread;
++#endif
++
 +static bool stopped = false;
 +void * DatamodelInitThread(__attribute((unused)) void * ptr)
 +{
@@ -1036,21 +1041,59 @@ index b205faf..c37c553 100644
 +
 +    return NULL;
 +}
++#endif
++
++
++rbusHandle_t rbus_handle = NULL;
++
++
++int GetModelNumber(dm_req_t *req, char *buf, int len)
++{
++    strncpy(buf, "MyModelNumber", len);
++    return USP_ERR_OK;
++}
++
++int GetSerialNumber(dm_req_t *req, char *buf, int len)
++{
++    strncpy(buf, "MySerialNumber", len);
++    return USP_ERR_OK;
++}
++
++int GetManufacturerOUI(dm_req_t *req, char *buf, int len)
++{
++    strncpy(buf, "MyManufacturerOUI", len);
++    return USP_ERR_OK;
++}
++
++int GetSoftwareVersion(dm_req_t *req, char *buf, int len)
++{
++    strncpy(buf, "MySoftwareVersion", len);
++    return USP_ERR_OK;
++}
 +
 +static int LCM_VENDOR_Init(void)
 +{
 +    rbusError_t ec;
++    int err;
++
++    err = USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.ModelNumber", GetModelNumber, DM_STRING);
++    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SerialNumber", GetSerialNumber, DM_STRING);
++    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.ManufacturerOUI", GetManufacturerOUI, DM_STRING);
++    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SoftwareVersion", GetSoftwareVersion, DM_STRING);
++
 +    ec = rbus_open(&rbus_handle, "usp_consumer");
 +    if (ec != RBUS_ERROR_SUCCESS)
 +    {
 +        fprintf(stderr,"could not open bus\nreturned error %s\n",rbusError_ToString(ec));
-+        abort(); //possibly an over-reaction, might leave sockets or ipc or etc in weird states
++        return USP_ERR_GENERAL_FAILURE;
 +    }
 +
++    #if 0
 +    LCM_RegisterDataModel();
 +
 +    //spawn a thread to handle the rbus init. this allows the connection to be done without blocking any other vendor code
 +    pthread_create(&init_thread,NULL,&DatamodelInitThread,NULL);
++    #endif
 +
 +    return USP_ERR_OK;
 +}
@@ -1062,6 +1105,8 @@ index b205faf..c37c553 100644
 +
 +static int LCM_VENDOR_Stop(void)
 +{
++
++    #if 0
 +    //stop the init thread if its still running
 +    stopped = true;
 +    pthread_join(init_thread,NULL);
@@ -1070,15 +1115,15 @@ index b205faf..c37c553 100644
 +    {
 +        rbus_close(rbus_handle);
 +    }
++    #endif
 +
 +    return USP_ERR_OK;
 +}
 +
-+
  
  /*********************************************************************//**
  **
-@@ -61,11 +1107,10 @@
+@@ -61,11 +1152,10 @@
  **************************************************************************/
  int VENDOR_Init(void)
  {
@@ -1091,7 +1136,7 @@ index b205faf..c37c553 100644
  /*********************************************************************//**
  **
  ** VENDOR_Start
-@@ -81,7 +1126,7 @@ int VENDOR_Init(void)
+@@ -81,7 +1171,7 @@ int VENDOR_Init(void)
  **************************************************************************/
  int VENDOR_Start(void)
  {
@@ -1100,7 +1145,7 @@ index b205faf..c37c553 100644
      return USP_ERR_OK;
  }
  
-@@ -99,7 +1144,6 @@ int VENDOR_Start(void)
+@@ -99,7 +1189,6 @@ int VENDOR_Start(void)
  **************************************************************************/
  int VENDOR_Stop(void)
  {
