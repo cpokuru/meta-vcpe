@@ -10,7 +10,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=a3a4606e52c16f583aefb8b47a9db31a"
 # OBUSPA is the reference USP agent codebase
 SRC_URI = " \
     git://github.com/BroadbandForum/obuspa;protocol=http;branch=master;rev=8355c200afb6430e3fc55ebabe8a9a709ae5d04f;name=obuspa;destsuffix=obuspa \
-    file://0001-add-lcm-datamodel.patch \
+    file://0001-vendor.patch \
     file://usp-pa-init \
     file://conf/usp_truststore.pem \
     file://conf/oktopus-websockets-obuspa.conf \

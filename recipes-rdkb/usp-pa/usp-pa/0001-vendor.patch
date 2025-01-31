@@ -1,19 +1,19 @@
-From 435e27e684027a62739f6256b85795482e7474a2 Mon Sep 17 00:00:00 2001
+From e93e45d6c29bdb54f726b9fd2c8b094ad9b46279 Mon Sep 17 00:00:00 2001
 From: Rob Vogelaar <revogelaar@gmail.com>
-Date: Wed, 29 Jan 2025 15:08:13 -0800
-Subject: [PATCH] add lcm datamodel
+Date: Fri, 31 Jan 2025 15:56:00 -0800
+Subject: [PATCH] vendor
 
 Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
 ---
- src/vendor/vendor.c      | 1107 +++++++++++++++++++++++++++++++++++++-
+ src/vendor/vendor.c      | 1209 +++++++++++++++++++++++++++++++++++++-
  src/vendor/vendor_defs.h |   14 +-
- 2 files changed, 1105 insertions(+), 16 deletions(-)
+ 2 files changed, 1207 insertions(+), 16 deletions(-)
 
 diff --git a/src/vendor/vendor.c b/src/vendor/vendor.c
-index b205faf..4c7865f 100644
+index b205faf..d46f41e 100644
 --- a/src/vendor/vendor.c
 +++ b/src/vendor/vendor.c
-@@ -39,14 +39,1105 @@
+@@ -39,14 +39,1207 @@
   *
   */
  
@@ -1071,15 +1071,117 @@ index b205faf..4c7865f 100644
 +    return USP_ERR_OK;
 +}
 +
++
++static int provisioningCode = 123;
++
++int GetProvisioningCode(dm_req_t *req, char *buf, int len)
++{
++    snprintf(buf, len, "%d", provisioningCode);
++    return USP_ERR_OK;
++}
++
++// Set a new provisioning code
++int SetProvisioningCode(dm_req_t *req, char *buf)
++{
++    char *endptr;
++    long new_code = strtol(buf, &endptr, 10);
++    provisioningCode = (int)new_code;
++    return USP_ERR_OK;
++}
++
++static int ValidateAdd_RbusTable(dm_req_t *req) { return USP_ERR_OK; }
++static int NotifyAdd_RbusTable(dm_req_t *req) { return USP_ERR_OK; }
++static int ValidateDelete_RbusTable(dm_req_t *req)  { return USP_ERR_OK; }
++static int NotifyDelete_RbusTable(dm_req_t *req)  { return USP_ERR_OK; }
++
++static int Add_RbusTableRow(dm_req_t *req)
++{
++    return USP_ERR_OK;
++}
++static int Delete_RbusTableRow(dm_req_t *req)
++{
++    return USP_ERR_OK;
++}
++
++
++
++static char *LCM_ExecutionUnit_SetRequestedState_inputArgs[] =
++{
++    "RequestedState" // RequestedState=Idle, RequestedState=Active
++};
++
++
++//general handler for synchronous rbus/USP functions, takes in expected arguments , parses them and runs the invoke calls
++static int LCM_Generic_Method(char * Args[] , rbusValueType_t arg_types [] , int num_args,  dm_req_t *req, char *command_key, kv_vector_t *input_args, kv_vector_t *output_args)
++{
++    return USP_ERR_OK;
++}
++
++#define NUM_ELEM(x) (sizeof((x)) / sizeof((x)[0]))
++
++static int LCM_ExecutionUnit_SetRequestedState(dm_req_t *req, char *command_key, kv_vector_t *input_args, kv_vector_t *output_args)
++{
++    const int arg_num = NUM_ELEM(LCM_ExecutionUnit_SetRequestedState_inputArgs);
++    rbusValueType_t arg_types [] =
++    {
++        RBUS_STRING /* RequestedState */
++    };
++    return LCM_Generic_Method (LCM_ExecutionUnit_SetRequestedState_inputArgs,arg_types,arg_num, req, command_key, input_args, output_args);
++}
++
++
++
 +static int LCM_VENDOR_Init(void)
 +{
 +    rbusError_t ec;
 +    int err;
 +
++    //int USP_REGISTER_VendorParam_ReadOnly(char *path, dm_get_value_cb_t get_cb, unsigned type_flags);
++    //
++    // typedef int (*dm_get_value_cb_t)(dm_req_t *req, char *buf, int len);
++
 +    err = USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.ModelNumber", GetModelNumber, DM_STRING);
-+    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SerialNumber", GetSerialNumber, DM_STRING);
-+    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.ManufacturerOUI", GetManufacturerOUI, DM_STRING);
-+    err|= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SoftwareVersion", GetSoftwareVersion, DM_STRING);
++    err |= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SerialNumber", GetSerialNumber, DM_STRING);
++    err |= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.ManufacturerOUI", GetManufacturerOUI, DM_STRING);
++    err |= USP_REGISTER_VendorParam_ReadOnly("Device.DeviceInfo.SoftwareVersion", GetSoftwareVersion, DM_STRING);
++
++    //int USP_REGISTER_VendorParam_ReadWrite(char *path, dm_get_value_cb_t get_cb, dm_set_value_cb_t set_cb, dm_notify_set_cb_t notify_set_cb, unsigned type_flags);
++    //
++    // typedef int (*dm_get_value_cb_t)(dm_req_t *req, char *buf, int len);
++    // typedef int (*dm_set_value_cb_t)(dm_req_t *req, char *buf);
++    // typedef int (*dm_notify_set_cb_t)(dm_req_t *req, char *value);
++
++    err |= USP_REGISTER_VendorParam_ReadWrite("Device.DeviceInfo.ProvisioningCode", GetProvisioningCode, SetProvisioningCode, NULL, DM_STRING);
++
++    //int USP_REGISTER_Object(char *path, dm_validate_add_cb_t validate_add_cb, dm_add_cb_t add_cb, dm_notify_add_cb_t notify_add_cb,
++    //                               dm_validate_del_cb_t validate_del_cb, dm_del_cb_t del_cb, dm_notify_del_cb_t notify_del_cb);
++
++    err |= USP_REGISTER_Object("Device.SoftwareModules.ExecutionUnit.{i}", ValidateAdd_RbusTable, Add_RbusTableRow, NotifyAdd_RbusTable, ValidateDelete_RbusTable, Delete_RbusTableRow, NotifyDelete_RbusTable);
++    err |= USP_REGISTER_Param_NumEntries("Device.SoftwareModules.ExecutionUnitNumberOfEntries", "Device.SoftwareModules.ExecutionUnit.{i}");
++
++
++    // int USP_REGISTER_SyncOperation(char *path, dm_sync_oper_cb_t sync_oper_cb);
++    //
++    // typedef int (*dm_sync_oper_cb_t)(dm_req_t *req, char *command_key, kv_vector_t *input_args, kv_vector_t *output_args);
++
++    err|= USP_REGISTER_SyncOperation("Device.SoftwareModules.ExecutionUnit.{i}.SetRequestedState()", LCM_ExecutionUnit_SetRequestedState);
++
++
++
++    err|= USP_REGISTER_OperationArguments("Device.SoftwareModules.ExecutionUnit.{i}.SetRequestedState()", LCM_ExecutionUnit_SetRequestedState_inputArgs,NUM_ELEM(LCM_ExecutionUnit_SetRequestedState_inputArgs),NULL,0);
++
++
++
++#if 0
++    USP_REGISTER_Object(DEV_SM_ROOT "ExecutionUnit.{i}", ValidateAdd_RbusTable, Add_RbusTableRow, NotifyAdd_RbusTable, ValidateDelete_RbusTable, Delete_RbusTableRow, NotifyDelete_RbusTable);
++    USP_REGISTER_Param_NumEntries(DEV_SM_ROOT "ExecutionUnitNumberOfEntries", DEV_SM_ROOT "ExecutionUnit.{i}");
++
++    USP_REGISTER_SyncOperation(DEV_SM_ROOT "ExecutionUnit.{i}.SetRequestedState()", LCM_ExecutionUnit_SetRequestedState);
++    USP_REGISTER_OperationArguments(DEV_SM_ROOT "ExecutionUnit.{i}.SetRequestedState()", LCM_ExecutionUnit_SetRequestedState_inputArgs,NUM_ELEM(LCM_ExecutionUnit_SetRequestedState_inputArgs),NULL,0);
++
++    USP_REGISTER_AsyncOperation(DEV_SM_ROOT "InstallDU()",LCM_DeploymentUnit_InstallDU,NULL);
++    USP_REGISTER_OperationArguments(DEV_SM_ROOT "InstallDU()", LCM_DeploymentUnit_InstallDU_inputArgs,NUM_ELEM(LCM_DeploymentUnit_InstallDU_inputArgs),NULL,0);
++#endif
 +
 +    ec = rbus_open(&rbus_handle, "usp_consumer");
 +    if (ec != RBUS_ERROR_SUCCESS)
@@ -1123,7 +1225,7 @@ index b205faf..4c7865f 100644
  
  /*********************************************************************//**
  **
-@@ -61,11 +1152,10 @@
+@@ -61,11 +1254,10 @@
  **************************************************************************/
  int VENDOR_Init(void)
  {
@@ -1136,7 +1238,7 @@ index b205faf..4c7865f 100644
  /*********************************************************************//**
  **
  ** VENDOR_Start
-@@ -81,7 +1171,7 @@ int VENDOR_Init(void)
+@@ -81,7 +1273,7 @@ int VENDOR_Init(void)
  **************************************************************************/
  int VENDOR_Start(void)
  {
@@ -1145,7 +1247,7 @@ index b205faf..4c7865f 100644
      return USP_ERR_OK;
  }
  
-@@ -99,7 +1189,6 @@ int VENDOR_Start(void)
+@@ -99,7 +1291,6 @@ int VENDOR_Start(void)
  **************************************************************************/
  int VENDOR_Stop(void)
  {
