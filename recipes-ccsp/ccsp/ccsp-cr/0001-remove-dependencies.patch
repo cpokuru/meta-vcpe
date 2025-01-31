@@ -1,0 +1,186 @@
+From fbea1d8f47146f3640280f6b6346705a5c631a11 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Fri, 31 Jan 2025 12:16:01 -0800
+Subject: [PATCH] remove dependencies
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ source/CCSP_CR/ccsp_cr_utility.c | 10 ++----
+ source/CrSsp/ssp_dbus.c          | 17 ++--------
+ source/CrSsp/ssp_main.c          | 56 +++++++++-----------------------
+ source/Makefile.am               |  3 +-
+ 4 files changed, 21 insertions(+), 65 deletions(-)
+
+diff --git a/source/CCSP_CR/ccsp_cr_utility.c b/source/CCSP_CR/ccsp_cr_utility.c
+index c75bcde..dcb81a6 100644
+--- a/source/CCSP_CR/ccsp_cr_utility.c
++++ b/source/CCSP_CR/ccsp_cr_utility.c
+@@ -87,8 +87,6 @@
+ 
+ #include "ccsp_base_api.h"
+ 
+-#include <telemetry_busmessage_sender.h>
+-
+ /**********************************************************************
+ 
+     prototype:
+@@ -398,12 +396,8 @@ CcspCrDumpObject
+ 
+             if( pCompInfo->uStatus == CCSP_Component_NotRegistered)
+             {
+-		AnscTrace("#%.2lu %s v%lu NotRegistered\n", i,
+-			  pCompInfo->pComponentName, pCompInfo->uVersion);
+-		if (strstr(pCompInfo->pComponentName, "ccsp.tr069pa"))
+-		{
+-		    t2_event_d("SYS_ERROR_TR69_Not_Registered", 1);
+-		}
++                AnscTrace("#%.2lu %s v%lu NotRegistered\n", i,
++                pCompInfo->pComponentName, pCompInfo->uVersion);
+             }
+             else if( pCompInfo->uStatus == CCSP_Component_RegSuccessful)
+             {
+diff --git a/source/CrSsp/ssp_dbus.c b/source/CrSsp/ssp_dbus.c
+index d8a633b..5eeb282 100644
+--- a/source/CrSsp/ssp_dbus.c
++++ b/source/CrSsp/ssp_dbus.c
+@@ -54,7 +54,6 @@
+ #include "ccsp_message_bus.h"
+ #include "ccsp_trace.h"
+ 
+-#include <telemetry_busmessage_sender.h>
+ 
+ extern PCCSP_CR_MANAGER_OBJECT                     g_pCcspCrMgr;
+ extern void*                                       g_pDbusHandle;
+@@ -494,20 +493,8 @@ waitingForSystemReadyTask(ANSC_HANDLE  hThisObject)
+             {
+                 if( pCompInfo->uStatus == CCSP_Component_NotRegistered)
+                 {
+-		    AnscTrace("System Not Ready!!!! '%s' v%lu NotRegistered\n",
+-			     pCompInfo->pComponentName, pCompInfo->uVersion);
+-		    if (strstr(pCompInfo->pComponentName, "ccsp.cm"))
+-		    {
+-			t2_event_d("SYS_ERROR_CM_Not_Registered", 1);
+-		    }
+-		    else if (strstr(pCompInfo->pComponentName, "ccsp.psm"))
+-		    {
+-			t2_event_d("SYS_ERROR_PSM_Not_Registered", 1);
+-		    }
+-		    else if (strstr(pCompInfo->pComponentName, "ccsp.wifi"))
+-		    {
+-			t2_event_d("SYS_ERROR_WIFI_Not_Registered", 1);
+-		    }
++                    AnscTrace("System Not Ready!!!! '%s' v%lu NotRegistered\n",
++                        pCompInfo->pComponentName, pCompInfo->uVersion);
+                     break;
+                 }
+                 else if( pCompInfo->uStatus != CCSP_Component_RegSuccessful)
+diff --git a/source/CrSsp/ssp_main.c b/source/CrSsp/ssp_main.c
+index 9f78d89..a470a37 100644
+--- a/source/CrSsp/ssp_main.c
++++ b/source/CrSsp/ssp_main.c
+@@ -46,11 +46,8 @@
+ #include <fcntl.h>
+ 
+ #include "ssp_global.h"
+-#include "syscfg/syscfg.h"
+-#include "cap.h"
+-#include "telemetry_busmessage_sender.h"
++//#include "cap.h"
+ 
+-static cap_user appcaps;
+ 
+ #ifdef INCLUDE_BREAKPAD
+ #include "breakpad_wrapper.h"
+@@ -147,25 +144,6 @@ static void sig_handler(int sig)
+ }
+ #endif
+ 
+-static void drop_root()
+-{ 
+-  appcaps.caps = NULL;
+-  appcaps.user_name = NULL;
+-  bool ret = false;
+-  ret = isBlocklisted();
+-  if(ret)
+-  {
+-    AnscTrace("NonRoot feature is disabled\n");
+-  }
+-  else
+-  {
+-    AnscTrace("NonRoot feature is enabled, dropping root privileges for CcspCr process\n");
+-    init_capability();
+-    drop_root_caps(&appcaps);
+-    update_process_caps(&appcaps);
+-    read_capability(&appcaps);
+-  }
+-}
+ 
+ int main(int argc, char* argv[])
+ {
+@@ -307,32 +285,30 @@ int main(int argc, char* argv[])
+     signal(SIGPIPE, SIG_IGN);
+ 
+ #endif
+-    t2_init("ccsp-cr");
+ 
+-        if(CRRbusOpen() != 0)
+-        {
+-            AnscTrace("CRRbusOpen failed\n");
+-            return 1;
+-        }
++    if(CRRbusOpen() != 0)
++    {
++        AnscTrace("CRRbusOpen failed\n");
++        return 1;
++    }
+ 
+-	system("touch /tmp/cr_initialized; print_uptime boot_to_cr_uptime");
++    system("touch /tmp/cr_initialized; print_uptime boot_to_cr_uptime");
+ 
+     if ( bRunAsDaemon )
+     {
+-		sem_post (sem);
+-		sem_close(sem);
+-		drop_root();
++        sem_post (sem);
++        sem_close(sem);
+ 
+-		while (1) {
+-			sleep(30);
+-		}
++        while (1) {
++            sleep(30);
++        }
+     }
+     else
+     {
+-		while ( cmdChar != 'q' )
+-		{
+-			cmdChar = getchar();
+-		}
++        while ( cmdChar != 'q' )
++        {
++            cmdChar = getchar();
++        }
+     }
+ 
+     CRRbusClose();
+diff --git a/source/Makefile.am b/source/Makefile.am
+index b60a6f3..fb52826 100644
+--- a/source/Makefile.am
++++ b/source/Makefile.am
+@@ -43,10 +43,9 @@ CcspCrSsp_SOURCES = \
+ 	CCSP_CR/ccsp_cr_profile.c \
+ 	CCSP_CR/ccsp_cr_session.c \
+ 	CCSP_CR/ccsp_cr_utility.c
+-CcspCrSsp_LDFLAGS += -lccsp_common -lsyscfg -ltelemetry_msgsender -lprivilege $(SYSTEMD_LDFLAGS) -lpthread
++CcspCrSsp_LDFLAGS += -lccsp_common -lpthread
+ if RBUS_BUILD_INTEGRATED
+ CcspCrSsp_SOURCES += CrSsp/ssp_rbus.c
+ CcspCrSsp_LDFLAGS += -lrbus -lrtMessage -lxml2
+ endif
+ endif
+-
+-- 
+2.25.1
+

@@ -15,6 +15,8 @@ IMAGE_INSTALL:append = " \
     \
     rbus \
     usp-pa \
+    \
+    ccsp-cr \
 "
 
 # Add extra image features if needed
