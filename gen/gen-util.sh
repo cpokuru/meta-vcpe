@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export MVCPE="$HOME/git/meta-vcpe"
+export METAVCPE="$HOME/git/meta-vcpe"
 
 
 bridges="
@@ -12,12 +12,12 @@ bridges="
         wlan0 wlan1
     "
 
-check_mvcpe() {
-    if [ ! -d "$MVCPE" ]; then
-        echo "Directory does not exist: $MVCPE"
+check_metavcpe() {
+    if [ ! -d "$METAVCPE" ]; then
+        echo "Directory does not exist: $METAVCPE"
         exit 1
     fi
-    mkdir -p "$MVCPE"/tmp
+    mkdir -p "$METAVCPE"/tmp
 }
 
 check_lxd_version() {
@@ -69,10 +69,10 @@ check_devuan_chimaera() {
     else
         echo "Creating devuan-chimaera-base image"
         url="https://dl.dropboxusercontent.com/scl/fi/i1amx0tvbd4lygg29o4st/devuan-chimaera.tar.gz?rlkey=9q0mrda1eaohfr85xj2l8zryh&dl=0"
-        file="$MVCPE/tmp/devuan-chimaera.tar.gz"
+        file="$METAVCPE/tmp/devuan-chimaera.tar.gz"
         [ -e "$encfile" ] || curl -L -o "$file" "$url"
-        tar xzf $file -C $MVCPE/tmp
-        lxc image import $MVCPE/tmp/devuan-chimaera $MVCPE/tmp/devuan-chimaera.root --alias devuan-chimaera-base
+        tar xzf $file -C $METAVCPE/tmp
+        lxc image import $METAVCPE/tmp/devuan-chimaera $METAVCPE/tmp/devuan-chimaera.root --alias devuan-chimaera-base
     fi
 }
 

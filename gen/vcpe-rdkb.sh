@@ -58,10 +58,16 @@ lxc profile device add ${profilename} eth1 nic nictype=bridged parent=lan-p1 nam
 sudo bridge vlan add vid 100 dev lan-p1 self
 
 
-lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=physical parent=wlan0
-lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=physical parent=wlan1
-lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=physical parent=wlan2
-lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=physical parent=wlan3
+#lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=physical parent=wlan0
+#lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=physical parent=wlan1
+#lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=physical parent=wlan2
+#lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=physical parent=wlan3
+
+
+lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=macvlan parent=wlan0
+lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=macvlan parent=wlan1
+lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=macvlan parent=wlan2
+lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=macvlan parent=wlan3
 
 # nvram
 if ! lxc storage volume show default $volumename > /dev/null 2>&1; then
