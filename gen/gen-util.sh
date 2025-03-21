@@ -1,6 +1,20 @@
 #!/bin/bash
 
-export METAVCPE="$HOME/git/meta-vcpe"
+MV_ROOT="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" )"
+
+if [[ ! "$PWD" == "$MV_ROOT"* ]]; then
+    SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+    echo "Error: Script is being run from a location outside the current directory" >&2
+    echo "Current directory: $PWD" >&2
+    echo "Script location  : $SCRIPT_PATH" >&2
+    echo "Please change your PATH to include the correct directory by:" >&2
+    echo "  1. Directly: export PATH=$PWD:\$PATH" >&2
+    echo "  2. Permanently: Add 'export PATH=$PWD:\$PATH' to your ~/.bashrc file" >&2
+    echo "Then try again." >&2
+    exit 1
+fi
+
+export MV_ROOT
 
 
 bridges="
@@ -12,13 +26,6 @@ bridges="
         wlan0 wlan1
     "
 
-check_metavcpe() {
-    if [ ! -d "$METAVCPE" ]; then
-        echo "Directory does not exist: $METAVCPE"
-        exit 1
-    fi
-    mkdir -p "$METAVCPE"/tmp
-}
 
 check_lxd_version() {
     if command -v lxd &> /dev/null; then
@@ -69,10 +76,10 @@ check_devuan_chimaera() {
     else
         echo "Creating devuan-chimaera-base image"
         url="https://dl.dropboxusercontent.com/scl/fi/i1amx0tvbd4lygg29o4st/devuan-chimaera.tar.gz?rlkey=9q0mrda1eaohfr85xj2l8zryh&dl=0"
-        file="$METAVCPE/tmp/devuan-chimaera.tar.gz"
+        file="$MV_ROOT/tmp/devuan-chimaera.tar.gz"
         [ -e "$encfile" ] || curl -L -o "$file" "$url"
-        tar xzf $file -C $METAVCPE/tmp
-        lxc image import $METAVCPE/tmp/devuan-chimaera $METAVCPE/tmp/devuan-chimaera.root --alias devuan-chimaera-base
+        tar xzf $file -C $MV_ROOT/tmp
+        lxc image import $MV_ROOT/tmp/devuan-chimaera $MV_ROOT/tmp/devuan-chimaera.root --alias devuan-chimaera-base
     fi
 }
 

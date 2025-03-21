@@ -2,7 +2,6 @@
 
 source gen-util.sh
 
-check_metavcpe
 check_lxd_version
 #check_and_create_bridges
 
