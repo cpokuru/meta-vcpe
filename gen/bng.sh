@@ -42,8 +42,8 @@ name: bng
 description: "bng"
 config:
     boot.autostart: "false"
-    limits.cpu: ""            # "" effectively means no CPU limits, allowing access to all available CPUs
-    limits.memory: 256MB      # Restrict bng memory usage to 256MB
+    limits.cpu: ""              # "" effectively means no CPU limits, allowing access to all available CPUs
+    limits.memory: 256MiB       # Restrict bng memory usage to 256MB
 devices:
     eth0:
         name: eth0
@@ -65,7 +65,7 @@ devices:
         path: /
         pool: default
         type: disk
-        size: 512MB
+        size: 512MiB
 EOF
 
 

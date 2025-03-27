@@ -23,7 +23,7 @@ bridges="
         cm \
         wanoe \
         lan-p1 lan-p2 lan-p3 lan-p4 \
-        wlan0 wlan1
+        br-wlan0 br-wlan1
     "
 
 
@@ -428,7 +428,7 @@ check_and_create_bridges() {
                 ;;
 
             # LAN bridges with VLAN support
-            lan-p[1-4]|wlan[0-1]|wanoe)
+            lan-p[1-4]|br-wlan[0-1]|wanoe)
                 check_and_create_lan_bridge $bridge_name
                 ;;
 
